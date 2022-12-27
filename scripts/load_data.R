@@ -47,7 +47,7 @@ consumer_data <- left_join(consumer_data, consumer_code, by='Consumer Code') %>%
 consumer_demo <- consumer_raw_data %>%
   select(c(1,3:31)) %>%
   rename("id" = Serial) %>%
-  select(-c(3, 4, 5, 8, 12, 13, 14, 15, 21))
+  select(-c(3, 4, 5, 8, 12, 13, 14, 15, 21, 26, 27, 28))
   
 # exit question
 consumer_exit <- consumer_raw_data %>%
@@ -138,16 +138,17 @@ map<-data_map %>%
   filter(., entry!="Q10A_OE") %>%
   filter(., entry!="Q16_OE") %>%
   filter(., substr(entry,1,1) != "E") %>%
+  filter(., substr(entry,1,3) != "S19") %>%
   filter(., entry!=("QHIDE15"))
 
 data_consumer_complete <- consumer_data %>%
   left_join(consumer_demo, by ="id") %>%
   rename_(.dots = setNames(map$entry, map$code))%>%
   rename_at(35, ~ paste("t", ., sep = "_")) %>%
-  rename_at(-c(1,2,35), ~ paste("c", ., sep = "_"))
+  rename_at(-c(1,2,35), ~ paste("c", ., sep = "_")) %>%
+  filter(., product!="NA")
 
-write.csv(x=data_consumer_complete, file="20221227_danone_core_milk_consumer_data.csv")
-
+write.csv(x=data_consumer_complete, file="20221227_danone_core_milk_consumer_data.csv", row.names=FALSE)
 
 
 
