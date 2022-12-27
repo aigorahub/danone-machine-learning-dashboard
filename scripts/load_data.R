@@ -11,6 +11,7 @@ sensory_prep_raw_data <- data [[10]]
 analytical_raw_data <- data[[5]]
 consumer_raw_datamap <- data[[4]]
 product_names_codes <- data[[2]]
+data_map <- data[[11]]
 
 ### Clean consumer data
 product_codes <- unique(consumer_raw_data$QHIDPROD1)
@@ -39,13 +40,15 @@ consumer_code <- product_names_codes[1:2]
 consumer_data <- left_join(consumer_data, consumer_code, by='Consumer Code') %>%
   relocate('Suggested Name', .after = id) %>%
   rename("product" = 'Suggested Name') %>%
-  select(-'Consumer Code')
+  select(-'Consumer Code') %>%
+  select(!ends_with("OE"))
 
 # consumer demographics
 consumer_demo <- consumer_raw_data %>%
   select(c(1,3:31)) %>%
-  rename("id" = Serial)
-
+  rename("id" = Serial) %>%
+  select(-c(3, 4, 5, 8, 12, 13, 14, 15, 21))
+  
 # exit question
 consumer_exit <- consumer_raw_data %>%
   select(c(1,553:604)) %>%
@@ -122,13 +125,38 @@ analytical_data <- left_join(analytical_data, analytical_code, by="product_name"
   select(-product_name)
 
 ### Combine datasets:
-data_complete <- consumer_data %>%
+map<-data_map %>% 
+  select(entry, code) %>% 
+  filter(., !is.na(code)) %>% 
+  filter(., entry!="REPBOOST") %>%
+  filter(., entry!="QHIDPROD") %>%
+  filter(., entry!="SEGMENT_Q8") %>%
+  filter(., entry!="SEGMENT_Q13") %>%
+  filter(., entry!="L") %>%
+  filter(., entry!="SEXACTAGE_1") %>%
+  filter(., entry!="SREGIONUK") %>%
+  filter(., entry!="SREGIONDE") %>%
+  filter(., entry!="S4") %>%
+  filter(., entry!="S7") %>%
+  filter(., entry!="S14") %>%
+  filter(., entry!="Q1A_OE") %>%
+  filter(., entry!="Q6A_OE") %>%
+  filter(., entry!="Q10A_OE") %>%
+  filter(., entry!="Q16_OE") %>%
+  filter(., substr(entry,1,1) != "E") %>%
+  filter(., entry!=("QHIDE15"))
+
+data_consumer_complete <- consumer_data %>%
   left_join(consumer_demo, by ="id") %>%
-  left_join(consumer_exit, by ="id") %>%
+  rename_(.dots = setNames(map$entry, map$code))%>%
+  rename_at(38, ~ paste("t", ., sep = "_")) %>%
+  rename_at(-c(1,2,38), ~ paste("c", ., sep = "_"))
+
+write.csv(x=data_consumer_complete, file="20221227_danone_core_milk_consumer_data.csv")
+
+data_complete <- data_consumer_complete %>%
   left_join(sensory_milk_data, by = "product") %>%
   left_join(sensory_powder_data, by = "product") %>%
   left_join(sensory_prep_data, by = "product") %>%
   left_join(analytical_data, by = "product")
 
-  
-  
