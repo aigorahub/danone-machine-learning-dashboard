@@ -54,12 +54,6 @@ consumer_exit <- consumer_raw_data %>%
   select(c(1,553:604)) %>%
   rename("id" = Serial)
 
-# select target 
-consumer_target <- consumer_data
-
-# select explanatory var
-consumer_expl <- consumer_data
-
 
 ### datamap
 consumer_datamap <- consumer_raw_datamap %>%
@@ -149,10 +143,13 @@ map<-data_map %>%
 data_consumer_complete <- consumer_data %>%
   left_join(consumer_demo, by ="id") %>%
   rename_(.dots = setNames(map$entry, map$code))%>%
-  rename_at(38, ~ paste("t", ., sep = "_")) %>%
-  rename_at(-c(1,2,38), ~ paste("c", ., sep = "_"))
+  rename_at(35, ~ paste("t", ., sep = "_")) %>%
+  rename_at(-c(1,2,35), ~ paste("c", ., sep = "_"))
 
 write.csv(x=data_consumer_complete, file="20221227_danone_core_milk_consumer_data.csv")
+
+
+
 
 data_complete <- data_consumer_complete %>%
   left_join(sensory_milk_data, by = "product") %>%
