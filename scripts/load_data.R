@@ -146,7 +146,14 @@ data_consumer_complete <- consumer_data %>%
   rename_(.dots = setNames(map$entry, map$code))%>%
   rename_at(35, ~ paste("t", ., sep = "_")) %>%
   rename_at(-c(1,2,35), ~ paste("c", ., sep = "_")) %>%
-  filter(., product!="NA")
+  filter(., product!="NA") %>%
+  mutate(c_s_country=case_when(c_s_location==1 ~ 1, 
+                               c_s_location==2 ~ 1, 
+                               c_s_location==3 ~ 1, 
+                               c_s_location==4 ~ 2, 
+                               c_s_location==5 ~ 2,
+                               c_s_location==6 ~ 2)) %>%
+  select(-c_s_location)
 
 write.csv(x=data_consumer_complete, file="20221227_danone_core_milk_consumer_data.csv", row.names=FALSE)
 
