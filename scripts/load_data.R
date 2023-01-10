@@ -155,7 +155,7 @@ data_consumer_complete <- consumer_data %>%
                                c_s_location==6 ~ 2)) %>%
   select(-c_s_location)
 
-write.csv(x=data_consumer_complete, file="20221227_danone_core_milk_consumer_data.csv", row.names=FALSE)
+write.csv(x=data_consumer_complete, file="input/processed_data/20221227_danone_core_milk_consumer_data.csv", row.names=FALSE)
 
 
 
